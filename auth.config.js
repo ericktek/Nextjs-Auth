@@ -1,25 +1,25 @@
 export const authConfig = {
   pages: {
-    signIn: '/login',
+    signIn: "/login",
   },
   callbacks: {
-    session: async ({ session, token}) => {
-      if (session?.user){
-          session.user.name = token.name
+    session: async ({ session, token }) => {
+      if (session?.user) {
+        session.user.name = token.name;
       }
-      return session
+      return session;
     },
-    authorized({ auth, request: { nextUrl } }) {
+    authorized: ({ auth, request: { nextUrl } }) => {
       const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
+      const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
       if (isOnDashboard) {
         if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
+        return false;
       } else if (isLoggedIn) {
-        return Response.redirect(new URL('/dashboard', nextUrl));
+        return Response.redirect(new URL("/dashboard", nextUrl));
       }
       return true;
     },
   },
   providers: [],
-} 
+};

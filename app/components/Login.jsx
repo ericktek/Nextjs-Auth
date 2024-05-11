@@ -1,15 +1,15 @@
+"use client";
 import Link from "next/link";
-import { authenticate } from './../lib/actions';
-
+import { authenticate } from "./../lib/actions";
+import { useFormState } from "react-dom";
 
 const LoginPage = () => {
-  
+  const [errorMessage, dispatch] = useFormState(authenticate, undefined);
   return (
-    <form action={authenticate} className="border bg-white shadow-xl p-4 rounded-md mt-3">
-      
-    
-      
-
+    <form
+      action={dispatch}
+      className="border bg-white shadow-xl p-4 rounded-md mt-3"
+    >
       <div className="relative flex items-center mt-6">
         <span className="absolute">
           <svg
@@ -27,17 +27,15 @@ const LoginPage = () => {
             />
           </svg>
         </span>
-        
 
         <input
           type="email"
-          name='email'
+          name="email"
           className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11  focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
           placeholder="Email address"
           required
         />
       </div>
-      
 
       <div className="relative flex items-center mt-4">
         <span className="absolute">
@@ -59,13 +57,12 @@ const LoginPage = () => {
 
         <input
           type="password"
-          name='password'
+          name="password"
           className="block w-full px-10 py-3 border rounded-lg focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
           placeholder="Password"
           required
         />
       </div>
-     
 
       <div className="relative flex items-center mt-4">
         <span className="absolute">
@@ -92,7 +89,6 @@ const LoginPage = () => {
           required
         />
       </div>
-     
 
       <div className="mt-6">
         <button className="w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">
@@ -110,6 +106,17 @@ const LoginPage = () => {
             </Link>
           </p>
         </div>
+      </div>
+      <div
+        className="flex h-8 items-end space-x-1"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {errorMessage && (
+          <>
+            <p className="text-sm text-red-500">{errorMessage}</p>
+          </>
+        )}
       </div>
     </form>
   );
