@@ -1,9 +1,28 @@
-import NextAuth from 'next-auth';
 import { authConfig } from './auth.config';
- 
-export default NextAuth(authConfig).auth;
- 
+import NextAuth from 'next-auth';
+export const { auth } = NextAuth(authConfig);
+
+export default auth((req) => {
+  const { nextUrl, auth } = req;
+  const isLoggedIn = !!auth;
+
+  const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
+  const isOnLoggin = nextUrl.pathname.startsWith('/login');
+  const isOnSingup = nextUrl.pathname.startsWith('/signup');
+  if (isOnDashboard) {
+    console.log('isOnDashboard', isOnDashboard);
+    if (!isLoggedIn) {
+      console.log('isLoggedIn', isLoggedIn);
+      return Response.redirect(new URL('/login', nextUrl));
+    }
+  }
+  if (isOnLoggin || isOnSingup) {
+    if (isLoggedIn) {
+      return Response.redirect(new URL('/dashboard', nextUrl));
+    }
+  }
+});
+
 export const config = {
-  // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+  matcher: ['/((?!.+.[w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 };
