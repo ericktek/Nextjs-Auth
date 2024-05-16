@@ -1,25 +1,39 @@
+import { compare } from 'bcryptjs';
+import Credentials from 'next-auth/providers/credentials';
+import { connectMongoDB } from './app/db/mongodb';
+import User from './app/models/user';
+import { CredentialsSignin } from 'next-auth';
+
+class InvalidLoginError extends CredentialsSignin {
+  message = 'Invalid Information or password';
+}
+
+class UserNotFoundError extends CredentialsSignin {
+  message = 'Your account does not exist';
+}
+
 export const authConfig = {
-  pages: {
-    signIn: "/login",
-  },
-  callbacks: {
-    session: async ({ session, token }) => {
-      if (session?.user) {
-        session.user.name = token.name;
-      }
-      return session;
-    },
-    authorized: ({ auth, request: { nextUrl } }) => {
-      const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
-      if (isOnDashboard) {
-        if (isLoggedIn) return true;
-        return false;
-      } else if (isLoggedIn) {
-        return Response.redirect(new URL("/dashboard", nextUrl));
-      }
-      return true;
-    },
-  },
-  providers: [],
+  providers: [
+    Credentials({
+      async authorize(credentials) {
+        const { email, password } = credentials;
+
+        if (!email || !password) {
+          throw new InvalidLoginError();
+        }
+
+        await connectMongoDB();
+        const user = await User.findOne({ email: email });
+        if (!user) {
+          throw new UserNotFoundError();
+        }
+        const isValid = await compare(password, user?.password);
+        if (!isValid) {
+          throw new InvalidLoginError();
+        }
+
+        return user;
+      },
+    }),
+  ],
 };
